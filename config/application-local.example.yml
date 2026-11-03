@@ -1,0 +1,11 @@
+# 可选：复制为 application-local.yml（已被 Git 忽略），在 IDEA 本地运行时使用。
+# 也可直接使用启动脚本，以环境变量传入密码和随机 JWT 密钥。
+sky:
+  datasource:
+    host: 127.0.0.1
+    port: 3306
+    database: sky_take_out
+    username: root
+    password: ${DB_PASSWORD:}
+  jwt:
+    admin-secret-key: ${SKY_JWT_ADMIN_SECRET:}

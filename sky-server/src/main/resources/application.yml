@@ -1,0 +1,27 @@
+server:
+  port: ${SERVER_PORT:8080}
+  address: ${SERVER_ADDRESS:127.0.0.1}
+spring:
+  application:
+    name: sky-take-out
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.sky.entity
+  configuration:
+    map-underscore-to-camel-case: true
+sky:
+  jwt:
+    admin-secret-key: ${SKY_JWT_ADMIN_SECRET:}
+    admin-ttl: 7200000
+    admin-token-name: token
+    user-secret-key: ${SKY_JWT_USER_SECRET:}
+    user-ttl: 7200000
+    user-token-name: authentication
+logging:
+  level:
+    com.sky: info
