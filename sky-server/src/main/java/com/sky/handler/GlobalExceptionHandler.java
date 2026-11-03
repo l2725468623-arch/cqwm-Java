@@ -11,6 +11,14 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(org.springframework.dao.DuplicateKeyException.class)
+    public Result<Void> duplicate() { return Result.error("用户名或分类名称已存在"); }
+    @ExceptionHandler(org.springframework.web.bind.MissingServletRequestParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Result<Void> missingParameter() { return Result.error("缺少必要参数"); }
+    @ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Result<Void> parameterType() { return Result.error("请求参数类型不正确"); }
     @ExceptionHandler(BaseException.class)
     public Result<Void> business(BaseException ex) { return Result.error(ex.getMessage()); }
     @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class})

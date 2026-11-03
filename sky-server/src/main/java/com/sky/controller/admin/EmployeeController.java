@@ -45,4 +45,27 @@ public class EmployeeController {
     @ApiOperation("员工退出登录")
     @PostMapping("/logout")
     public Result<Void> logout() { return Result.success(); }
+    @ApiOperation("新增员工")
+    @PostMapping
+    public Result<Void> save(@Valid @RequestBody com.sky.dto.EmployeeDTO employeeDTO) {
+        employeeService.save(employeeDTO);
+        return Result.success();
+    }
+    @ApiOperation("启用或禁用员工账号")
+    @PostMapping("/status/{status}")
+    public Result<Void> startOrStop(@PathVariable Integer status, @RequestParam Long id) {
+        employeeService.startOrStop(status, id);
+        return Result.success();
+    }
+    @ApiOperation("按ID查询员工，编辑回显")
+    @GetMapping("/{id}")
+    public Result<EmployeeVO> getById(@PathVariable Long id) {
+        return Result.success(employeeService.getById(id));
+    }
+    @ApiOperation("编辑员工")
+    @PutMapping
+    public Result<Void> update(@Valid @RequestBody com.sky.dto.EmployeeDTO employeeDTO) {
+        employeeService.update(employeeDTO);
+        return Result.success();
+    }
 }

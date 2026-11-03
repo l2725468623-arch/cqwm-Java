@@ -22,4 +22,15 @@
         FROM employee <include refid="nameFilter"/>
         ORDER BY create_time DESC, id DESC LIMIT #{offset}, #{limit}
     </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO employee (name,username,password,phone,sex,id_number,status,create_time,update_time,create_user,update_user)
+        VALUES (#{name},#{username},#{password},#{phone},#{sex},#{idNumber},#{status},#{createTime},#{updateTime},#{createUser},#{updateUser})
+    </insert>
+    <update id="updateProfile">
+        UPDATE employee SET name=#{name},username=#{username},phone=#{phone},sex=#{sex},id_number=#{idNumber},
+        update_time=#{updateTime},update_user=#{updateUser} WHERE id=#{id}
+    </update>
+    <update id="updateStatus">
+        UPDATE employee SET status=#{status},update_time=#{time},update_user=#{operator} WHERE id=#{id}
+    </update>
 </mapper>

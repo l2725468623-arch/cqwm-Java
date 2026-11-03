@@ -8,6 +8,7 @@ public class EmployeeVO {
     private String username;
     private String phone;
     private String sex;
+    private String idNumber;
     private Integer status;
     private LocalDateTime createTime;
 }

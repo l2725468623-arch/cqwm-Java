@@ -61,9 +61,12 @@ try {
     }
 
     $javaExecutable = (Get-Command java -ErrorAction Stop).Source
+    $staticDirectory = (Join-Path $projectRoot 'sky-server\src\main\resources\static').Replace('\','/')
     $javaProcess = Start-Process -FilePath $javaExecutable -ArgumentList @('-jar',('"' + $jarPath + '"'),'--spring.profiles.active=dev',
         '--server.port=8080','--server.address=127.0.0.1','--sky.datasource.host=127.0.0.1',
-        '--sky.datasource.port=3306','--sky.datasource.database=sky_take_out','--sky.datasource.username=root') `
+        '--sky.datasource.port=3306','--sky.datasource.database=sky_take_out','--sky.datasource.username=root',
+        ('"--spring.web.resources.static-locations=file:' + $staticDirectory + '/,classpath:/static/"'),
+        '--spring.web.resources.cache.period=0') `
         -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru `
         -RedirectStandardOutput (Join-Path $logDirectory 'server-out.log') `
         -RedirectStandardError (Join-Path $logDirectory 'server-error.log')

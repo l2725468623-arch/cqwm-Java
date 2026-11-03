@@ -1,6 +1,6 @@
 # 苍穹外卖 · cqwm
 
-按课程第一天的环境搭建和登录流程整理的本地学习项目。已完成登录界面、员工登录、JWT 鉴权、退出、员工查询和工作台真实数据读取。菜品、套餐、订单的新增修改等业务留待后续课程实现。
+按课程 Day01、Day02 整理的本地学习项目。已完成登录与 JWT 鉴权、员工新增/分页/状态切换/编辑，以及分类新增/查询/编辑/状态切换/删除。菜品、套餐、订单的业务功能留待后续课程实现。
 
 ## 本地启动
 
@@ -13,6 +13,10 @@
 启动脚本会按需构建项目、创建缺失的 11 张表、添加缺失的管理员账号并启动 Java 服务。启动前会检查端口，停止时会核对进程归属。日志位于 `logs/`，进程记录位于 `.local/`，均已排除上传。
 
 前端静态资源由 Spring Boot 一起提供，首次运行不需要安装 Node 或配置 Nginx。`deploy/nginx.conf` 是可选反向代理配置，可用于课程中的 `http://localhost/#/login` 地址。
+
+界面采用浅色简洁主题：顶部磨砂导航、黑白灰层次、大标题、圆角卡片与蓝色操作按钮。登录、员工、分类页面和编辑弹窗使用同一套样式，并适配窄屏。
+
+开发启动脚本优先读取 `sky-server/src/main/resources/static` 中的前端文件，修改 HTML、CSS 或 JavaScript 后刷新浏览器即可查看；打包后的 JAR 也包含完整静态页面。
 
 ## IDEA 中运行
 
@@ -48,7 +52,17 @@ sql / scripts / config / deploy
 - `POST /admin/employee/login`：`{"username":"admin","password":"123456"}`。
 - `GET /admin/employee/profile`：当前员工信息。
 - `GET /admin/employee/page?page=1&pageSize=10&name=`：分页和姓名搜索。
+- `POST /admin/employee`：新增员工，默认密码 `123456`，按课程格式保存 MD5 摘要。
+- `POST /admin/employee/status/{status}?id=`：启用（1）或禁用（0）员工。
+- `GET /admin/employee/{id}`：编辑前回显员工信息，不返回密码。
+- `PUT /admin/employee`：编辑员工资料，保留密码、账号状态和创建信息。
 - `POST /admin/employee/logout`：退出接口；前端清除当前标签页的令牌。
+- `POST /admin/category`、`PUT /admin/category`：新增、编辑分类。
+- `GET /admin/category/page?page=1&pageSize=10&name=&type=`：分类分页和类型筛选。
+- `POST /admin/category/status/{status}?id=`：启用或禁用分类。
+- `DELETE /admin/category?id=`：删除分类，关联菜品或套餐时拒绝删除。
+- `GET /admin/category/list?type=`：按类型查询启用的分类。
+- `GET /admin/category/{id}`：查询单个分类。
 - `GET /admin/dashboard/overview`：员工、分类、菜品、订单数量。
 - `GET /health`：后端与数据库连通性。
 - <http://localhost:8080/doc.html>：Knife4j 接口文档。
@@ -61,7 +75,9 @@ sql / scripts / config / deploy
 mvn package
 ```
 
-自动集成测试使用独立 H2 内存库，验证真实 Controller → Service → Mapper 调用，以及错误密码、禁用账号、过期/缺失令牌、参数校验、SQL 参数化和响应不泄露密码。不会修改本机 MySQL 的业务数据。
+17 项自动集成测试使用独立 H2 内存库，验证登录鉴权、员工新增/编辑/状态、分类增删改查、关联删除保护、默认密码摘要、真实操作人记录、大整数 ID、重名和无效输入。不会修改本机 MySQL 的业务数据。
+
+Day02 功能与课程章节、操作步骤、测试说明见 `docs/Day02学习说明.md`。原来放在 Controller 包中的练习类 `employeeDTO` 保留为兼容类；正式请求对象使用 `sky-pojo` 下的 `com.sky.dto.EmployeeDTO`。
 
 为方便跟随原版课程，保留 Spring Boot 2.7、`javax` 和课程的 MD5 密码格式，具体补丁与 Lombok 版本已适配本机 JDK 21。该项目用于本地课程学习。
 
