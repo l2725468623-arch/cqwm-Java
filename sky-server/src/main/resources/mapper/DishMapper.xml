@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sky.mapper.DishMapper">
+ <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+  INSERT INTO dish(name,category_id,price,image,description,status,create_time,update_time,create_user,update_user)
+  VALUES(#{name},#{categoryId},#{price},#{image},#{description},#{status},#{createTime},#{updateTime},#{createUser},#{updateUser})
+ </insert>
+ <update id="update">UPDATE dish SET name=#{name},category_id=#{categoryId},price=#{price},image=#{image},description=#{description},status=#{status},update_time=#{updateTime},update_user=#{updateUser} WHERE id=#{id}</update>
+ <update id="updateStatus">UPDATE dish SET status=#{status},update_time=#{updateTime},update_user=#{updateUser} WHERE id=#{id}</update>
+ <select id="getById" resultType="com.sky.vo.DishVO">SELECT d.*,c.name AS category_name FROM dish d LEFT JOIN category c ON c.id=d.category_id WHERE d.id=#{id}</select>
+ <select id="getForUpdate" resultType="com.sky.entity.Dish">SELECT * FROM dish WHERE id=#{id} FOR UPDATE</select>
+ <select id="count" resultType="long">SELECT COUNT(*) FROM dish
+  <where><if test="name != null and name != ''">name LIKE CONCAT('%',#{name},'%')</if><if test="categoryId != null">AND category_id=#{categoryId}</if><if test="status != null">AND status=#{status}</if></where>
+ </select>
+ <select id="page" resultType="com.sky.vo.DishVO">SELECT d.*,c.name AS category_name FROM dish d LEFT JOIN category c ON c.id=d.category_id
+  <where><if test="query.name != null and query.name != ''">d.name LIKE CONCAT('%',#{query.name},'%')</if><if test="query.categoryId != null">AND d.category_id=#{query.categoryId}</if><if test="query.status != null">AND d.status=#{query.status}</if></where>
+  ORDER BY d.update_time DESC,d.id DESC LIMIT #{offset},#{query.pageSize}
+ </select>
+ <select id="lockByIds" resultType="com.sky.entity.Dish">SELECT * FROM dish WHERE id IN <foreach collection="ids" item="id" open="(" close=")" separator=",">#{id}</foreach> ORDER BY id FOR UPDATE</select>
+ <select id="countSetmealLinks" resultType="long">SELECT COUNT(*) FROM setmeal_dish WHERE dish_id IN <foreach collection="ids" item="id" open="(" close=")" separator=",">#{id}</foreach></select>
+ <delete id="deleteByIds">DELETE FROM dish WHERE id IN <foreach collection="ids" item="id" open="(" close=")" separator=",">#{id}</foreach></delete>
+</mapper>

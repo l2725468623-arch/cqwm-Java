@@ -56,17 +56,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setId(null);
         employee.setPassword(DigestUtils.md5DigestAsHex(com.sky.constant.PasswordConstant.DEFAULT_PASSWORD.getBytes(StandardCharsets.UTF_8)));
         employee.setStatus(StatusConstant.ENABLE);
-        java.time.LocalDateTime now = java.time.LocalDateTime.now();
-        employee.setCreateTime(now); employee.setUpdateTime(now);
-        employee.setCreateUser(BaseContext.getCurrentId()); employee.setUpdateUser(BaseContext.getCurrentId());
         employeeMapper.insert(employee);
     }
     public void update(com.sky.dto.EmployeeDTO dto) {
         requireEmployee(dto.getId());
         Employee employee = new Employee();
         BeanUtils.copyProperties(dto, employee);
-        employee.setUpdateTime(java.time.LocalDateTime.now());
-        employee.setUpdateUser(BaseContext.getCurrentId());
         employeeMapper.updateProfile(employee);
     }
     public void startOrStop(Integer status, Long id) {
@@ -74,7 +69,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = requireEmployee(id);
         if (status == 0 && ("admin".equals(employee.getUsername()) || id.equals(BaseContext.getCurrentId())))
             throw new BaseException("不能禁用管理员或当前登录账号");
-        employeeMapper.updateStatus(id, status, java.time.LocalDateTime.now(), BaseContext.getCurrentId());
+        Employee statusChange = Employee.builder().id(id).status(status).build();
+        employeeMapper.updateStatus(statusChange);
     }
     public EmployeeVO getById(Long id) { return toVO(requireEmployee(id)); }
     private Employee requireEmployee(Long id) {

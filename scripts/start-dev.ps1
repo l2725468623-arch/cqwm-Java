@@ -10,6 +10,8 @@ Set-Location -LiteralPath $projectRoot
 $savedDbPassword = $env:DB_PASSWORD
 $savedMysqlPassword = $env:MYSQL_PWD
 $savedJwtSecret = $env:SKY_JWT_ADMIN_SECRET
+$savedOssId = $env:ALI_OSS_ACCESS_KEY_ID
+$savedOssSecret = $env:ALI_OSS_ACCESS_KEY_SECRET
 $securePassword = $null
 $passwordPointer = [IntPtr]::Zero
 try {
@@ -27,7 +29,7 @@ try {
     if ($portInUse) { throw '8080 端口已被其他程序占用，请先停止该程序。' }
 
     $sourceFiles = Get-ChildItem -Path (Join-Path $projectRoot 'sky-common'),(Join-Path $projectRoot 'sky-pojo'),(Join-Path $projectRoot 'sky-server') -Recurse -File |
-        Where-Object { $_.FullName -notmatch '\\target\\' -and $_.Extension -in '.java','.xml','.yml','.html','.css','.js','.png' }
+        Where-Object { $_.FullName -notmatch '\\target\\' -and $_.Extension -in '.java','.xml','.yml','.html','.css','.js','.png','.webp' }
     $jarItem = Get-Item -LiteralPath $jarPath -ErrorAction SilentlyContinue
     $sourceChanged = $jarItem -and @($sourceFiles | Where-Object { $_.LastWriteTimeUtc -gt $jarItem.LastWriteTimeUtc }).Count -gt 0
     if ($Build -or -not $jarItem -or $sourceChanged) {
@@ -60,6 +62,8 @@ try {
         $env:SKY_JWT_ADMIN_SECRET = [Convert]::ToBase64String($randomBytes)
     }
 
+    . (Join-Path $PSScriptRoot 'oss-credentials.ps1')
+    Import-SkyOssCredentials -ProjectRoot $projectRoot
     $javaExecutable = (Get-Command java -ErrorAction Stop).Source
     $staticDirectory = (Join-Path $projectRoot 'sky-server\src\main\resources\static').Replace('\','/')
     $javaProcess = Start-Process -FilePath $javaExecutable -ArgumentList @('-jar',('"' + $jarPath + '"'),'--spring.profiles.active=dev',
@@ -96,6 +100,8 @@ try {
     $env:DB_PASSWORD = $savedDbPassword
     $env:MYSQL_PWD = $savedMysqlPassword
     $env:SKY_JWT_ADMIN_SECRET = $savedJwtSecret
+    $env:ALI_OSS_ACCESS_KEY_ID = $savedOssId
+    $env:ALI_OSS_ACCESS_KEY_SECRET = $savedOssSecret
     if ($passwordPointer -ne [IntPtr]::Zero) { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($passwordPointer) }
     if ($securePassword) { $securePassword.Dispose() }
 }

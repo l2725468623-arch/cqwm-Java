@@ -37,7 +37,7 @@ sky-pojo/dto/EmployeeDTO
 
 分类按相同分层查看 CategoryDTO、CategoryPageQueryDTO、CategoryController、CategoryService、CategoryServiceImpl、CategoryMapper 及其 XML。
 
-审计字段由 Service 中的 BaseContext.getCurrentId() 设置，时间用 LocalDateTime；自动填充切面属于后续课程。本项目没有提前实现这部分切面。
+Day02 阶段由 Service 手动填写审计字段。项目现已完成 Day03 的 AutoFill 切面，统一处理时间和操作人；详见同目录下的 Day03公共字段自动填充.md。
 
 实体类对应数据库，DTO接收表单，VO控制返回给前端的字段。员工响应不包含密码摘要。
 

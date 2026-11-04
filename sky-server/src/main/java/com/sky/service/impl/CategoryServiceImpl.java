@@ -1,5 +1,4 @@
 package com.sky.service.impl;
-import com.sky.context.BaseContext;
 import com.sky.constant.MessageConstant;
 import com.sky.dto.CategoryDTO;
 import com.sky.dto.CategoryPageQueryDTO;
@@ -9,7 +8,6 @@ import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.CategoryMapper;
 import com.sky.result.PageResult;
 import com.sky.service.CategoryService;
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -22,14 +20,11 @@ public class CategoryServiceImpl implements CategoryService {
     public void save(CategoryDTO dto) {
         Category category=new Category(); BeanUtils.copyProperties(dto,category);
         category.setId(null); category.setStatus(0);
-        LocalDateTime now=LocalDateTime.now(); category.setCreateTime(now);category.setUpdateTime(now);
-        category.setCreateUser(BaseContext.getCurrentId());category.setUpdateUser(BaseContext.getCurrentId());
         categoryMapper.insert(category);
     }
     public void update(CategoryDTO dto) {
         getById(dto.getId());
         Category category=new Category();BeanUtils.copyProperties(dto,category);
-        category.setUpdateTime(LocalDateTime.now());category.setUpdateUser(BaseContext.getCurrentId());
         categoryMapper.update(category);
     }
     @Transactional
@@ -42,7 +37,7 @@ public class CategoryServiceImpl implements CategoryService {
     public void startOrStop(Integer status,Long id) {
         if(status==null || (status!=0 && status!=1)) throw new BaseException("状态只能为0或1");
         getById(id);
-        Category category=Category.builder().id(id).status(status).updateTime(LocalDateTime.now()).updateUser(BaseContext.getCurrentId()).build();
+        Category category=Category.builder().id(id).status(status).build();
         categoryMapper.updateStatus(category);
     }
     public Category getById(Long id) {

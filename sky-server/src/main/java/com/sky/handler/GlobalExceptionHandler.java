@@ -12,13 +12,19 @@ import org.springframework.web.bind.annotation.*;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(org.springframework.dao.DuplicateKeyException.class)
-    public Result<Void> duplicate() { return Result.error("用户名或分类名称已存在"); }
+    public Result<Void> duplicate() { return Result.error("用户名、分类名称或菜品名称已存在"); }
     @ExceptionHandler(org.springframework.web.bind.MissingServletRequestParameterException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Result<Void> missingParameter() { return Result.error("缺少必要参数"); }
     @ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Result<Void> parameterType() { return Result.error("请求参数类型不正确"); }
+    @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
+    @ResponseStatus(HttpStatus.PAYLOAD_TOO_LARGE)
+    public Result<Void> uploadTooLarge() { return Result.error("图片大小不能超过5MB"); }
+    @ExceptionHandler(org.springframework.web.multipart.support.MissingServletRequestPartException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Result<Void> missingFile() { return Result.error("请选择要上传的图片"); }
     @ExceptionHandler(BaseException.class)
     public Result<Void> business(BaseException ex) { return Result.error(ex.getMessage()); }
     @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class})

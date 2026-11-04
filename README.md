@@ -1,6 +1,6 @@
 # 苍穹外卖 · cqwm
 
-按课程 Day01、Day02 整理的本地学习项目。已完成登录与 JWT 鉴权、员工新增/分页/状态切换/编辑，以及分类新增/查询/编辑/状态切换/删除。菜品、套餐、订单的业务功能留待后续课程实现。
+按课程 Day01、Day02 整理的本地学习项目。已完成登录与 JWT 鉴权、员工新增/分页/状态切换/编辑，以及分类新增/查询/编辑/状态切换/删除。菜品管理已支持新增、编辑、图片上传、口味维护、筛选分页、起售/停售以及单条/批量删除；套餐、订单的业务功能留待后续课程实现。
 
 ## 本地启动
 
@@ -14,11 +14,13 @@
 
 前端静态资源由 Spring Boot 一起提供，首次运行不需要安装 Node 或配置 Nginx。`deploy/nginx.conf` 是可选反向代理配置，可用于课程中的 `http://localhost/#/login` 地址。
 
-界面采用浅色简洁主题：顶部磨砂导航、黑白灰层次、大标题、圆角卡片与蓝色操作按钮。登录、员工、分类页面和编辑弹窗使用同一套样式，并适配窄屏。
+界面采用苹果产品落地页方向的黑白视觉：登录前为产品介绍与登录弹窗，登录后为轻薄顶部导航，包含工作台、数据统计、订单、套餐、菜品、分类、员工七个入口。使用大面积留白、居中大标题与蓝色胶囊按钮；窄屏提供可折叠导航。员工、分类和菜品管理接入真实业务；数据统计读取现有累计数量；订单、套餐页面明确标注尚未开放。
 
 开发启动脚本优先读取 `sky-server/src/main/resources/static` 中的前端文件，修改 HTML、CSS 或 JavaScript 后刷新浏览器即可查看；打包后的 JAR 也包含完整静态页面。
 
 ## IDEA 中运行
+
+首次请双击 **配置IDEA调试.cmd**，在本地输入 MySQL 密码。工具将受文件权限保护的本地连接配置保存在 Git 忽略的 `.local/idea-dev.properties`，并复用已有 OSS 凭证。在 IDEA 右上角选择 **苍穹外卖-IDEA断点调试**，点击小虫子 Debug。详情见 `docs/IDEA断点调试说明.md`。
 
 - 打开根目录 `pom.xml`，重新加载 Maven 项目；项目 SDK 与 Maven 运行 JDK 使用 **JDK 21**。
 - 入口：`sky-server` 中的 `com.sky.SkyApplication`。
@@ -63,6 +65,11 @@ sql / scripts / config / deploy
 - `DELETE /admin/category?id=`：删除分类，关联菜品或套餐时拒绝删除。
 - `GET /admin/category/list?type=`：按类型查询启用的分类。
 - `GET /admin/category/{id}`：查询单个分类。
+- `POST /admin/dish`、`PUT /admin/dish`：新增、编辑菜品及口味。
+- `GET /admin/dish/page?page=1&pageSize=10&name=&categoryId=&status=`：菜品筛选分页。
+- `GET /admin/dish/{id}`：详情及口味回显。
+- `DELETE /admin/dish?ids=1,2`：单条或批量删除；起售中或关联套餐时拒绝整批删除。
+- `POST /admin/dish/status/{status}?id=`：起售（1）或停售（0）。
 - `GET /admin/dashboard/overview`：员工、分类、菜品、订单数量。
 - `GET /health`：后端与数据库连通性。
 - <http://localhost:8080/doc.html>：Knife4j 接口文档。
@@ -75,7 +82,7 @@ sql / scripts / config / deploy
 mvn package
 ```
 
-17 项自动集成测试使用独立 H2 内存库，验证登录鉴权、员工新增/编辑/状态、分类增删改查、关联删除保护、默认密码摘要、真实操作人记录、大整数 ID、重名和无效输入。不会修改本机 MySQL 的业务数据。
+42 项自动测试使用独立 H2 内存库，验证登录鉴权、员工新增/编辑/状态、分类增删改查、关联删除保护、默认密码摘要、真实操作人记录、大整数 ID、重名和无效输入，并覆盖菜品与口味保存、筛选分页、编辑回显、售卖状态、删除保护及事务回滚。不会修改本机 MySQL 的业务数据。
 
 Day02 功能与课程章节、操作步骤、测试说明见 `docs/Day02学习说明.md`。原来放在 Controller 包中的练习类 `employeeDTO` 保留为兼容类；正式请求对象使用 `sky-pojo` 下的 `com.sky.dto.EmployeeDTO`。
 
@@ -86,3 +93,18 @@ Day02 功能与课程章节、操作步骤、测试说明见 `docs/Day02学习�
 - [课程数据库结构镜像](https://github.com/Danyhug/heima_sky_take_out/blob/main/sky_take_out.sql)
 - [Spring Boot 2.7.18 文档](https://docs.spring.io/spring-boot/docs/2.7.18/reference/html/)
 - 登录图片与标志的来源见 `sky-server/src/main/resources/static/assets/SOURCES.md`。
+
+## Day03 公共字段自动填充
+
+已加入 AutoFill 注解与 AutoFillAspect 切面，员工、分类、菜品的新增、编辑和状态切换统一填充公共字段。操作说明见 docs/Day03公共字段自动填充.md。Service 中的重复赋值已移除。
+
+## 阿里云 OSS 图片存储
+
+已配置 lay-java（广州），提供登录后图片上传与私有图片临时链接。先双击配置云存储.cmd在本地录入凭证并验证连接，再重新启动项目。详见 docs/云存储使用说明.md。
+## 菜品管理
+
+新增、编辑（含口味）、图片上传、筛选分页、单条和批量删除已完成。新增默认停售；起售中或关联套餐的菜品不能删除。使用步骤与接口见 `docs/Day03菜品管理说明.md`。
+
+## 产品风格前端
+
+登录页、工作台及管理列表已统一更新。素材、字体后备方案与验证说明见 `docs/苹果风格界面说明.md`。新增 WebP 主视觉随 JAR 一起打包，页面不依赖远程图片或字体服务。

@@ -31,6 +31,6 @@
         update_time=#{updateTime},update_user=#{updateUser} WHERE id=#{id}
     </update>
     <update id="updateStatus">
-        UPDATE employee SET status=#{status},update_time=#{time},update_user=#{operator} WHERE id=#{id}
+        UPDATE employee SET status=#{status},update_time=#{updateTime},update_user=#{updateUser} WHERE id=#{id}
     </update>
 </mapper>
